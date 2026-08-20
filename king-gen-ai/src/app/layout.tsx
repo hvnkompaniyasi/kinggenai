@@ -1,20 +1,19 @@
 // =============================================
 // KING GEN AI — Global Layout
-// Shrift, metadata va <html> sozlamalari
+// Shrift, metadata, Toaster (xabarnomalar)
 // =============================================
 
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google"; // Zamonaviy, texno shrift
+import { Space_Grotesk } from "next/font/google";
+import { Toaster } from "sonner"; // Chiroyli xabarnomalar
 import "./globals.css";
 
-// Shriftni yuklab, --font-sans o'zgaruvchisiga biriktiramiz
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
 });
 
-// Brauzer tab'ida ko'rinadigan ma'lumotlar
 export const metadata: Metadata = {
   title: "King Gen AI — AI-Powered Image Editing",
   description:
@@ -25,9 +24,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    // dark klassi: sayt qora rejimda ochiladi (tugma bilan almashtiriladi)
     <html lang="en" className={`${spaceGrotesk.variable} dark`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        {/* Xabarnomalar ekranning tepasida chiqadi */}
+        <Toaster position="top-center" richColors />
+      </body>
     </html>
   );
 }
