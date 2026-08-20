@@ -1,6 +1,6 @@
 // =============================================
 // EDITOR HOME — barcha instrumentlar markazi
-// (Higgsfield uslubidagi "tool hub", o'z neon dizaynimizga mos)
+// Resize, Light&Contrast, Crop ulandi!
 // =============================================
 "use client";
 
@@ -11,7 +11,9 @@ import { supabase } from "@/lib/supabase";
 import { ImageUploader } from "./image-uploader";
 import { RotateFlipTool } from "./tools/rotate-flip-tool";
 import { ConvertTool } from "./tools/convert-tool";
-import { toast } from "sonner";
+import { ResizeTool } from "./tools/resize-tool";
+import { AdjustTool } from "./tools/adjust-tool";
+import { CropTool } from "./tools/crop-tool";
 import {
   Wand2, Eraser, Crop, Ruler, RefreshCw, RotateCw, SlidersHorizontal,
   ArrowLeft, LogOut, Coins, Loader2,
@@ -19,13 +21,12 @@ import {
 
 type ToolId = "inpaint" | "background" | "crop" | "resize" | "convert" | "rotate" | "adjust";
 
-// Barcha instrumentlar ro'yxati
 const TOOLS: { id: ToolId; icon: any; title: string; desc: string; tag?: string }[] = [
   { id: "inpaint", icon: Wand2, title: "AI Magic Edit", desc: "Paint & describe — AI redraws it.", tag: "AI" },
   { id: "background", icon: Eraser, title: "Remove Background", desc: "One click → transparent PNG.", tag: "AI" },
   { id: "crop", icon: Crop, title: "Crop", desc: "Keep only the part you need." },
   { id: "resize", icon: Ruler, title: "Resize", desc: "Exact width & height in pixels." },
-  { id: "convert", icon: RefreshCw, title: "Convert Format", desc: "PNG, JPG, WEBP — instantly." },
+  { id: "convert", icon: RefreshCw, title: "Convert Format", desc: "PNG, JPG, WEBP, SVG, PDF +." },
   { id: "rotate", icon: RotateCw, title: "Rotate & Flip", desc: "Turn 90° or mirror in one tap." },
   { id: "adjust", icon: SlidersHorizontal, title: "Light & Contrast", desc: "Simple sliders to make it pop." },
 ];
@@ -56,7 +57,6 @@ export function EditorHome() {
     load();
   }, [router]);
 
-  // Chiqish tugmasi
   async function logout() {
     await supabase.auth.signOut();
     router.push("/");
@@ -74,7 +74,7 @@ export function EditorHome() {
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
-      {/* ===== HEADER: logo + kreditlar + logout ===== */}
+      {/* ===== HEADER ===== */}
       <header className="sticky top-0 z-40 border-b border-zinc-200/60 bg-white/70 backdrop-blur-xl dark:border-white/5 dark:bg-zinc-950/70">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2.5">
@@ -88,7 +88,6 @@ export function EditorHome() {
           </Link>
 
           <div className="flex items-center gap-2">
-            {/* Kreditlar balansi (MVP story #14) */}
             <span className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
               <Coins className="h-4 w-4 text-amber-400" />
               {credits ?? "—"} credits
@@ -106,7 +105,7 @@ export function EditorHome() {
 
       {/* ===== ASOSIY QISM ===== */}
       {!tool ? (
-        /* ----- TOOL HUB: "What would you create?" ----- */
+        /* ----- TOOL HUB ----- */
         <section className="mx-auto max-w-6xl px-4 py-12">
           <h1 className="text-center text-3xl font-extrabold sm:text-5xl">
             What would you{" "}
@@ -119,7 +118,6 @@ export function EditorHome() {
             Pick a tool — no skills needed.
           </p>
 
-          {/* Instrumentlar gridi */}
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {TOOLS.map((t) => {
               const Icon = t.icon;
@@ -147,7 +145,7 @@ export function EditorHome() {
           </div>
         </section>
       ) : (
-        /* ----- TOOL WORKSPACE: tanlangan instrument ish joyi ----- */
+        /* ----- TOOL WORKSPACE ----- */
         <section className="mx-auto max-w-5xl px-4 py-8">
           <button
             onClick={() => { setTool(null); setImageUrl(null); }}
@@ -160,21 +158,25 @@ export function EditorHome() {
 
           {!imageUrl ? (
             <ImageUploader onImage={setImageUrl} />
+          ) : tool === "adjust" ? (
+            /* Light & Contrast — o'z preview'i bilan */
+            <AdjustTool imageUrl={imageUrl} onImageChange={setImageUrl} />
+          ) : tool === "crop" ? (
+            /* Crop — o'z sahifasi bilan */
+            <CropTool imageUrl={imageUrl} onImageChange={setImageUrl} />
           ) : (
+            /* Rotate / Convert / Resize — umumiy ko'rinish */
             <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-              {/* Rasm preview */}
               <div className="rounded-2xl border border-zinc-200 p-4 dark:border-white/10">
                 <img src={imageUrl} alt="Working" className="mx-auto max-h-[65vh] rounded-xl object-contain" />
               </div>
-
-              {/* Boshqaruv paneli */}
               <div className="h-fit rounded-2xl border border-zinc-200 p-5 dark:border-white/10">
                 {tool === "rotate" && <RotateFlipTool imageUrl={imageUrl} onImageChange={setImageUrl} />}
                 {tool === "convert" && <ConvertTool imageUrl={imageUrl} />}
-                {tool !== "rotate" && tool !== "convert" && (
+                {tool === "resize" && <ResizeTool imageUrl={imageUrl} onImageChange={setImageUrl} />}
+                {(tool === "inpaint" || tool === "background") && (
                   <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                    🛠️ This tool&apos;s controls arrive in the next update. Try{" "}
-                    <b>Rotate & Flip</b> or <b>Convert Format</b> now!
+                    🛠️ This AI tool arrives in the next update — stay tuned!
                   </p>
                 )}
               </div>
