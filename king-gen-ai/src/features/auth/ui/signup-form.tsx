@@ -1,5 +1,6 @@
 // =============================================
 // SIGNUP FORM — ro'yxatdan o'tish
+// Ro'yxatdan o'tgach /editor ga o'tadi
 // =============================================
 "use client";
 
@@ -35,15 +36,15 @@ export function SignupForm() {
       return;
     }
 
-    // Sessiya bor — darhol kirgan (email tasdiqlash o'chirilgan)
+    // Sessiya bor — darhol kirgan
     if (data.session) {
       toast.success("Account created! 🎉");
-      router.push("/");
+      router.push("/editor"); // 🆕 Editorga o'tamiz
       router.refresh();
       return;
     }
 
-    // Agar tasdiqlash yoqilgan bo'lsa — emailni tekshirishni aytamiz
+    // Email tasdiqlash yoqilgan — xatni tekshirishni aytamiz
     toast.info("Check your email to confirm your account.");
     setLoading(false);
   }
@@ -67,7 +68,7 @@ export function SignupForm() {
         <Input
           id="password"
           type="password"
-          placeholder="Kamida 6 ta belgi"
+          placeholder="At least 6 characters"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           minLength={6}

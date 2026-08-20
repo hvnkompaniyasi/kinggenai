@@ -1,5 +1,6 @@
 // =============================================
 // LOGIN FORM — email + parol bilan kirish
+// Kirgandan keyin /editor ga o'tadi
 // =============================================
 "use client";
 
@@ -37,7 +38,7 @@ export function LoginForm() {
     }
 
     toast.success("Welcome back! 👑");
-    router.push("/"); // Bosh sahifaga qaytamiz
+    router.push("/editor"); // 🆕 Editorga o'tamiz
     router.refresh();
   }
 
