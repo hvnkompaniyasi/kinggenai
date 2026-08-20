@@ -1,6 +1,6 @@
 // =============================================
 // EDITOR HOME — barcha instrumentlar markazi
-// Adjust (CapCut uslubi) + responsive (md) tuzatishlari
+// Adjust (CapCut uslubi) + sticky "All tools" tugmasi
 // =============================================
 "use client";
 
@@ -151,11 +151,12 @@ export function EditorHome() {
       ) : (
         /* ----- TOOL WORKSPACE: tanlangan instrument ish joyi ----- */
         <section className="mx-auto max-w-5xl px-4 py-8">
+          {/* 🆕 Sticky "All tools" — scroll qilsa ham doim ko'rinadi, kattaroq pill-tugma */}
           <button
             onClick={() => { setTool(null); setImageUrl(null); }}
-            className="mb-6 flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-900 dark:hover:text-white"
+            className="sticky top-20 z-30 mb-6 flex w-fit items-center gap-2 rounded-full border border-zinc-200 bg-white/80 px-4 py-2.5 text-base font-medium text-zinc-600 shadow-lg shadow-purple-500/5 backdrop-blur-xl transition hover:scale-105 hover:text-zinc-900 dark:border-white/10 dark:bg-zinc-900/80 dark:text-zinc-300 dark:hover:text-white"
           >
-            <ArrowLeft className="h-4 w-4" /> All tools
+            <ArrowLeft className="h-5 w-5" /> All tools
           </button>
 
           <h2 className="mb-6 text-2xl font-bold sm:text-3xl">{active?.title}</h2>
