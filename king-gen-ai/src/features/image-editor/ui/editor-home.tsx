@@ -1,6 +1,6 @@
 // =============================================
-// EDITOR HOME — barcha instrumentlar markazi
-// Adjust (CapCut uslubi) + sticky "All tools" tugmasi
+// EDITOR HOME — instrumentlar markazi + PROFIL MENYUSI
+// (Canva uslubida: profil -> My Projects / Log out)
 // =============================================
 "use client";
 
@@ -15,13 +15,20 @@ import { ResizeTool } from "./tools/resize-tool";
 import { AdjustTool } from "./tools/adjust-tool";
 import { CropTool } from "./tools/crop-tool";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Wand2, Eraser, Crop, Ruler, RefreshCw, RotateCw, SlidersHorizontal,
-  ArrowLeft, LogOut, Coins, Loader2,
+  ArrowLeft, LogOut, Coins, Loader2, ChevronDown, FolderOpen, Crown,
 } from "lucide-react";
 
 type ToolId = "inpaint" | "background" | "crop" | "resize" | "convert" | "rotate" | "adjust";
 
-// Barcha instrumentlar ro'yxati
 const TOOLS: { id: ToolId; icon: any; title: string; desc: string; tag?: string }[] = [
   { id: "inpaint", icon: Wand2, title: "AI Magic Edit", desc: "Paint & describe — AI redraws it.", tag: "AI" },
   { id: "background", icon: Eraser, title: "Remove Background", desc: "One click → transparent PNG.", tag: "AI" },
@@ -36,10 +43,11 @@ export function EditorHome() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [credits, setCredits] = useState<number | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
   const [tool, setTool] = useState<ToolId | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  // Login + kreditlar balansini yuklash
+  // Login + kreditlar + email yuklash
   useEffect(() => {
     async function load() {
       const { data } = await supabase.auth.getSession();
@@ -47,6 +55,7 @@ export function EditorHome() {
         router.replace("/login");
         return;
       }
+      setEmail(data.session.user.email ?? null);
       const { data: profile } = await supabase
         .from("profiles")
         .select("credits")
@@ -58,7 +67,6 @@ export function EditorHome() {
     load();
   }, [router]);
 
-  // Chiqish tugmasi
   async function logout() {
     await supabase.auth.signOut();
     router.push("/");
@@ -76,7 +84,7 @@ export function EditorHome() {
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
-      {/* ===== HEADER: logo + kreditlar + logout ===== */}
+      {/* ===== HEADER: logo + kreditlar + PROFIL MENYUSI ===== */}
       <header className="sticky top-0 z-40 border-b border-zinc-200/60 bg-white/70 backdrop-blur-xl dark:border-white/5 dark:bg-zinc-950/70">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2.5">
@@ -90,25 +98,52 @@ export function EditorHome() {
           </Link>
 
           <div className="flex items-center gap-2">
-            {/* Kreditlar balansi (MVP story #14) */}
+            {/* Kreditlar balansi */}
             <span className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
               <Coins className="h-4 w-4 text-amber-400" />
               {credits ?? "—"} credits
             </span>
-            <button
-              onClick={logout}
-              aria-label="Log out"
-              className="rounded-full border border-zinc-200 bg-white p-2 text-zinc-600 transition hover:bg-zinc-100 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-white/10"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
+
+            {/* 🆕 PROFIL MENYUSI (logout o'rniga) */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  aria-label="Profile menu"
+                  className="flex items-center gap-2 rounded-full border border-zinc-200 bg-white p-1.5 pr-3 transition hover:bg-zinc-100 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-purple-600">
+                    <Crown className="h-4 w-4 text-white" />
+                  </span>
+                  <span className="hidden max-w-[140px] truncate text-sm font-medium text-zinc-700 sm:block dark:text-zinc-200">
+                    {email ?? "Profile"}
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-zinc-500" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-60">
+                <DropdownMenuLabel>
+                  <span className="block truncate text-sm font-medium">{email}</span>
+                  <span className="mt-1 flex items-center gap-1 text-xs font-normal text-zinc-500">
+                    <Coins className="h-3.5 w-3.5 text-amber-400" />
+                    {credits ?? 0} credits left
+                  </span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push("/projects")} className="cursor-pointer">
+                  <FolderOpen className="h-4 w-4" /> My Projects
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-500 focus:text-red-500">
+                  <LogOut className="h-4 w-4" /> Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
 
       {/* ===== ASOSIY QISM ===== */}
       {!tool ? (
-        /* ----- TOOL HUB: "What would you create?" ----- */
+        /* ----- TOOL HUB ----- */
         <section className="mx-auto max-w-6xl px-4 py-12">
           <h1 className="text-center text-3xl font-extrabold sm:text-5xl">
             What would you{" "}
@@ -121,7 +156,6 @@ export function EditorHome() {
             Pick a tool — no skills needed.
           </p>
 
-          {/* Instrumentlar gridi */}
           <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {TOOLS.map((t) => {
               const Icon = t.icon;
@@ -149,9 +183,8 @@ export function EditorHome() {
           </div>
         </section>
       ) : (
-        /* ----- TOOL WORKSPACE: tanlangan instrument ish joyi ----- */
+        /* ----- TOOL WORKSPACE ----- */
         <section className="mx-auto max-w-5xl px-4 py-8">
-          {/* 🆕 Sticky "All tools" — scroll qilsa ham doim ko'rinadi, kattaroq pill-tugma */}
           <button
             onClick={() => { setTool(null); setImageUrl(null); }}
             className="sticky top-20 z-30 mb-6 flex w-fit items-center gap-2 rounded-full border border-zinc-200 bg-white/80 px-4 py-2.5 text-base font-medium text-zinc-600 shadow-lg shadow-purple-500/5 backdrop-blur-xl transition hover:scale-105 hover:text-zinc-900 dark:border-white/10 dark:bg-zinc-900/80 dark:text-zinc-300 dark:hover:text-white"
@@ -164,13 +197,10 @@ export function EditorHome() {
           {!imageUrl ? (
             <ImageUploader onImage={setImageUrl} />
           ) : tool === "adjust" ? (
-            /* Adjust — CapCut uslubidagi pro sozlamalar */
             <AdjustTool imageUrl={imageUrl} onImageChange={setImageUrl} />
           ) : tool === "crop" ? (
-            /* Crop — o'z sahifasi bilan */
             <CropTool imageUrl={imageUrl} onImageChange={setImageUrl} />
           ) : (
-            /* Rotate / Convert / Resize — umumiy ko'rinish (md: yonma-yon) */
             <div className="grid gap-6 md:grid-cols-[1fr_300px]">
               <div className="rounded-2xl border border-zinc-200 p-4 dark:border-white/10">
                 <img src={imageUrl} alt="Working" className="mx-auto max-h-[65vh] rounded-xl object-contain" />
