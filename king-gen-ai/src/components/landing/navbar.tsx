@@ -1,11 +1,11 @@
 // =============================================
 // NAVBAR — logo, havolalar, tema almashtirish, CTA tugma
-// "Start Editing" tugmasi signup sahifasiga olib boradi
+// "Start Editing" -> /editor (login holatiga qarab aqlli yo'naltirish)
 // =============================================
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link"; // 🆕 Havolalar uchun
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon } from "lucide-react";
@@ -51,8 +51,8 @@ export function Navbar() {
             {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
 
-          {/* 🆕 Link ichiga o'ralgan tugma */}
-          <Link href="/signup">
+          {/* Aqlli tugma: login bor -> editor, yo'q -> login */}
+          <Link href="/editor">
             <Button size="sm" className="rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:opacity-90">
               Start Editing
             </Button>

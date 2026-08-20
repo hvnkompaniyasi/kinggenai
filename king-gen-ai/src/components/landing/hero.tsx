@@ -1,10 +1,10 @@
 // =============================================
 // HERO — katta sarlavha va asosiy tugmalar
-// "Start Editing" -> signup, "See How It Works" -> pastga scroll
+// "Start Editing" -> /editor, "See How It Works" -> pastga scroll
 // =============================================
 "use client";
 
-import Link from "next/link"; // 🆕 Havolalar uchun
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -48,16 +48,16 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mt-10 flex flex-wrap items-center justify-center gap-4"
         >
-          {/* 🆕 Link ichiga o'ralgan asosiy tugma */}
+          {/* Aqlli tugma: login bor -> editor, yo'q -> login */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link href="/signup">
+            <Link href="/editor">
               <Button size="lg" className="h-14 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 px-8 text-base text-white shadow-lg shadow-purple-500/30 hover:opacity-90">
                 Start Editing <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
           </motion.div>
 
-          {/* 🆕 "See How It Works" tugmasi #how bo'limiga scroll qiladi */}
+          {/* "See How It Works" tugmasi #how bo'limiga scroll qiladi */}
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <a href="#how">
               <Button size="lg" variant="outline" className="h-14 rounded-full border-zinc-300 bg-transparent px-8 text-base dark:border-white/15 dark:bg-transparent dark:text-zinc-200">

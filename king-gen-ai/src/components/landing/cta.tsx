@@ -1,10 +1,10 @@
 // =============================================
 // CTA — "Ready to Create Magic?" gradient karta
-// "Start Editing Now" tugmasi signup ga olib boradi
+// "Start Editing Now" -> /editor (aqlli yo'naltirish)
 // =============================================
 "use client";
 
-import Link from "next/link"; // 🆕 Havolalar uchun
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -29,9 +29,9 @@ export function Cta() {
           credit card required.
         </p>
 
-        {/* 🆕 Link ichiga o'ralgan tugma */}
+        {/* Aqlli tugma: login bor -> editor, yo'q -> login */}
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="mt-8 inline-block">
-          <Link href="/signup">
+          <Link href="/editor">
             <Button size="lg" className="h-14 rounded-full bg-white px-10 text-base text-purple-700 hover:bg-zinc-100">
               Start Editing Now <ArrowRight className="h-5 w-5" />
             </Button>
