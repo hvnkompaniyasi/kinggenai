@@ -1,12 +1,13 @@
 // =============================================
-// EDITOR HOME — instrumentlar markazi + PROFIL MENYUSI
-// (Canva uslubida: profil -> My Projects / Log out)
+// EDITOR HOME — instrumentlar markazi
+// PREMIUM O'NG MENYU: shisha panel + tooltip'lar + animatsiya
 // =============================================
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { ImageUploader } from "./image-uploader";
 import { RotateFlipTool } from "./tools/rotate-flip-tool";
@@ -17,14 +18,12 @@ import { CropTool } from "./tools/crop-tool";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   Wand2, Eraser, Crop, Ruler, RefreshCw, RotateCw, SlidersHorizontal,
-  ArrowLeft, LogOut, Coins, Loader2, ChevronDown, FolderOpen, Crown,
+  ArrowLeft, LogOut, Coins, Loader2, FolderOpen, Crown, Home,
 } from "lucide-react";
 
 type ToolId = "inpaint" | "background" | "crop" | "resize" | "convert" | "rotate" | "adjust";
@@ -38,6 +37,37 @@ const TOOLS: { id: ToolId; icon: any; title: string; desc: string; tag?: string 
   { id: "rotate", icon: RotateCw, title: "Rotate & Flip", desc: "Turn 90° or mirror in one tap." },
   { id: "adjust", icon: SlidersHorizontal, title: "Adjust", desc: "Pro color controls — like CapCut." },
 ];
+
+// ----- O'ng menyu tugmasi + tooltip -----
+function RailButton({
+  icon: Icon,
+  label,
+  onClick,
+  danger = false,
+}: {
+  icon: any;
+  label: string;
+  onClick: () => void;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={label}
+      className={`group relative flex h-11 w-11 items-center justify-center rounded-full transition hover:scale-110 ${
+        danger
+          ? "text-zinc-500 hover:bg-red-500/15 hover:text-red-500 dark:text-zinc-400"
+          : "text-zinc-500 hover:bg-purple-500/15 hover:text-purple-500 dark:text-zinc-400 dark:hover:text-cyan-300"
+      }`}
+    >
+      <Icon className="h-5 w-5" />
+      {/* Tooltip — chap tomonda chiqadi */}
+      <span className="pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-full border border-zinc-200 bg-white/90 px-3 py-1 text-xs font-semibold text-zinc-700 opacity-0 shadow-xl backdrop-blur transition group-hover:opacity-100 dark:border-white/10 dark:bg-zinc-900/90 dark:text-zinc-200">
+        {label}
+      </span>
+    </button>
+  );
+}
 
 export function EditorHome() {
   const router = useRouter();
@@ -84,7 +114,7 @@ export function EditorHome() {
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-white">
-      {/* ===== HEADER: logo + kreditlar + PROFIL MENYUSI ===== */}
+      {/* ===== HEADER: logo + kreditlar ===== */}
       <header className="sticky top-0 z-40 border-b border-zinc-200/60 bg-white/70 backdrop-blur-xl dark:border-white/5 dark:bg-zinc-950/70">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2.5">
@@ -97,53 +127,65 @@ export function EditorHome() {
             </span>
           </Link>
 
-          <div className="flex items-center gap-2">
-            {/* Kreditlar balansi */}
-            <span className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
-              <Coins className="h-4 w-4 text-amber-400" />
-              {credits ?? "—"} credits
-            </span>
-
-            {/* 🆕 PROFIL MENYUSI (logout o'rniga) */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  aria-label="Profile menu"
-                  className="flex items-center gap-2 rounded-full border border-zinc-200 bg-white p-1.5 pr-3 transition hover:bg-zinc-100 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-                >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-purple-600">
-                    <Crown className="h-4 w-4 text-white" />
-                  </span>
-                  <span className="hidden max-w-[140px] truncate text-sm font-medium text-zinc-700 sm:block dark:text-zinc-200">
-                    {email ?? "Profile"}
-                  </span>
-                  <ChevronDown className="h-4 w-4 text-zinc-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-60">
-                <DropdownMenuLabel>
-                  <span className="block truncate text-sm font-medium">{email}</span>
-                  <span className="mt-1 flex items-center gap-1 text-xs font-normal text-zinc-500">
-                    <Coins className="h-3.5 w-3.5 text-amber-400" />
-                    {credits ?? 0} credits left
-                  </span>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/projects")} className="cursor-pointer">
-                  <FolderOpen className="h-4 w-4" /> My Projects
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-500 focus:text-red-500">
-                  <LogOut className="h-4 w-4" /> Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <span className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+            <Coins className="h-4 w-4 text-amber-400" />
+            {credits ?? "—"} credits
+          </span>
         </div>
       </header>
 
+      {/* ===== 🌟 PREMIUM O'NG MENYU (shisha panel) ===== */}
+      <motion.aside
+        initial={{ x: 24, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="fixed right-3 top-20 z-40"
+      >
+        <div className="flex flex-col items-center gap-1 rounded-full border border-zinc-200/70 bg-white/80 p-2 shadow-2xl shadow-purple-500/10 backdrop-blur-xl dark:border-white/10 dark:bg-zinc-900/70">
+          {/* 1) PROFIL — gradient halqa */}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              aria-label="Profile"
+              className="group relative rounded-full bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 p-[2px] shadow-lg shadow-purple-500/30 transition hover:scale-110"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-950">
+                <Crown className="h-4 w-4 text-amber-300" />
+              </span>
+              <span className="pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-full border border-zinc-200 bg-white/90 px-3 py-1 text-xs font-semibold text-zinc-700 opacity-0 shadow-xl backdrop-blur transition group-hover:opacity-100 dark:border-white/10 dark:bg-zinc-900/90 dark:text-zinc-200">
+                {email ?? "Profile"}
+              </span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-60">
+              <div className="px-2 py-1.5">
+                <p className="truncate text-sm font-medium">{email}</p>
+                <p className="mt-1 flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  <Coins className="h-3.5 w-3.5 text-amber-400" />
+                  {credits ?? 0} credits left
+                </p>
+              </div>
+              <DropdownMenuSeparator />
+              <div className="px-2 py-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                Free plan • 10 credits included
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* 2) BOSH SAHIFA */}
+          <RailButton icon={Home} label="Home" onClick={() => router.push("/")} />
+
+          {/* 3) LOYIHALAR */}
+          <RailButton icon={FolderOpen} label="My Projects" onClick={() => router.push("/projects")} />
+
+          {/* Ajratuvchi chiziq */}
+          <span className="my-1 h-px w-6 bg-zinc-200 dark:bg-white/10" />
+
+          {/* 4) CHIQISH */}
+          <RailButton icon={LogOut} label="Log out" onClick={logout} danger />
+        </div>
+      </motion.aside>
+
       {/* ===== ASOSIY QISM ===== */}
       {!tool ? (
-        /* ----- TOOL HUB ----- */
         <section className="mx-auto max-w-6xl px-4 py-12">
           <h1 className="text-center text-3xl font-extrabold sm:text-5xl">
             What would you{" "}
@@ -183,7 +225,6 @@ export function EditorHome() {
           </div>
         </section>
       ) : (
-        /* ----- TOOL WORKSPACE ----- */
         <section className="mx-auto max-w-5xl px-4 py-8">
           <button
             onClick={() => { setTool(null); setImageUrl(null); }}
